@@ -14,6 +14,16 @@ type HelixServer struct {
   Client *etcd.Client
 }
 
+var (
+  typeToRecord = map[uint16]string {
+    dns.TypeA     : "A",
+    dns.TypeCNAME : "CNAME",
+    dns.TypeSOA   : "SOA",
+    dns.TypeAAAA  : "AAAA",
+    dns.TypeMX    : "MX",
+  }
+)
+
 func Server(port int, etcdurl string) *HelixServer {
   client := etcd.NewClient([]string{ etcdurl  })
   return &HelixServer {
@@ -29,7 +39,8 @@ func (s HelixServer) Start() {
     Net:          "udp",
     Handler:      dns.HandlerFunc(handler),
     ReadTimeout:  10,
-    WriteTimeout: 10}
+    WriteTimeout: 10,
+  }
 
   log.Print("Starting server...")
 
@@ -45,7 +56,7 @@ func getResponse(client *etcd.Client, q dns.Question) (*etcd.Response, error) {
     path = append(path, addr[len(addr)-s-1])
   }
 
-  path = append(path, "A")
+  path = append(path, typeToRecord[q.Qtype])
 
   return client.Get(strings.Join(path, "/"), false, false)
 }
@@ -60,13 +71,11 @@ func newHandler(client *etcd.Client) func(dns.ResponseWriter, *dns.Msg) {
 
     header := dns.RR_Header{Name: m.Question[0].Name, Rrtype: qType, Class: qClass, Ttl: 0}
 
-    if qType == 1 {
-      resp, _ := getResponse(client, req.Question[0])
+    resp, err := getResponse(client, req.Question[0])
+
+    if err == nil && qType == dns.TypeA {
       m.Answer = make([]dns.RR, 1)
       m.Answer[0] = &dns.A {Hdr: header, A: net.ParseIP(resp.Node.Value)}
-    } else {
-      m.Extra = make([]dns.RR, 1)
-      m.Extra[0] = &dns.TXT{ Hdr: header, Txt: []string{"No record found!"} }
     }
 
     w.WriteMsg(m)
