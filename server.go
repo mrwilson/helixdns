@@ -14,16 +14,6 @@ type HelixServer struct {
   Client *etcd.Client
 }
 
-var (
-  typeToRecord = map[uint16]string {
-    dns.TypeA     : "A",
-    dns.TypeCNAME : "CNAME",
-    dns.TypeSOA   : "SOA",
-    dns.TypeAAAA  : "AAAA",
-    dns.TypeMX    : "MX",
-  }
-)
-
 func Server(port int, etcdurl string) *HelixServer {
   client := etcd.NewClient([]string{ etcdurl  })
   return &HelixServer {
@@ -56,7 +46,7 @@ func getResponse(client *etcd.Client, q dns.Question) (*etcd.Response, error) {
     path = append(path, addr[len(addr)-s-1])
   }
 
-  path = append(path, typeToRecord[q.Qtype])
+  path = append(path, dns.TypeToString[q.Qtype])
 
   return client.Get(strings.Join(path, "/"), false, false)
 }
