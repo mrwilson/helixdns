@@ -38,8 +38,7 @@ func (s HelixServer) Start() {
 }
 
 func getResponse(client *etcd.Client, q dns.Question) (*etcd.Response, error) {
-  addr := strings.Split(q.Name, ".")
-  addr = addr[:len(addr)-1]
+  addr := dns.SplitDomainName(q.Name)
   path := []string{"helix"}
 
   for s := range addr {
