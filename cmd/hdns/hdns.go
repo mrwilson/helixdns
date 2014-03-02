@@ -6,10 +6,23 @@ import (
   "os/signal"
   "syscall"
   "log"
+  "flag"
 )
 
+var config struct {
+  Port int
+  EtcdAddress string
+}
+
+func init() {
+  flag.IntVar(&config.Port, "port", 9000, "port to run server on")
+  flag.StringVar(&config.EtcdAddress, "etcd-address", "http://localhost:4001/", "address of etcd instance")
+}
+
 func main() {
-  server := helixdns.Server(9000, "http://localhost:4001/")
+  flag.Parse()
+
+  server := helixdns.Server(config.Port, config.EtcdAddress)
 
   go func() {
     server.Start()
@@ -23,7 +36,4 @@ func main() {
       log.Fatalf("Signal (%d) received, stopping\n", s)
     }
   }
-
-
 }
-
