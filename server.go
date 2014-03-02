@@ -41,8 +41,8 @@ func getResponse(client *etcd.Client, q dns.Question) (*etcd.Response, error) {
   addr := dns.SplitDomainName(q.Name)
   path := []string{"helix"}
 
-  for s := range addr {
-    path = append(path, addr[len(addr)-s-1])
+  for i := len(addr) - 1; i >= 0; i-- {
+    path = append(path, addr[i])
   }
 
   path = append(path, dns.TypeToString[q.Qtype])
@@ -62,9 +62,21 @@ func newHandler(client *etcd.Client) func(dns.ResponseWriter, *dns.Msg) {
 
     resp, err := getResponse(client, req.Question[0])
 
-    if err == nil && qType == dns.TypeA {
-      m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.A {Hdr: header, A: net.ParseIP(resp.Node.Value)}
+    if err != nil {
+      log.Printf("Could not get record for %s", req.Question[0].Name)
+      w.WriteMsg(m)
+      return
+    }
+
+    switch qType {
+      case dns.TypeA:
+        m.Answer = make([]dns.RR, 1)
+        m.Answer[0] = &dns.A {Hdr: header, A: net.ParseIP(resp.Node.Value)}
+      case dns.TypeAAAA:
+        m.Answer = make([]dns.RR, 1)
+        m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp.Node.Value)}
+      default:
+        log.Printf("Unrecognised record type: %d",qType)
     }
 
     w.WriteMsg(m)
