@@ -58,7 +58,7 @@ func newHandler(client *etcd.Client) func(dns.ResponseWriter, *dns.Msg) {
     qType  := req.Question[0].Qtype
     qClass := req.Question[0].Qclass
 
-    header := dns.RR_Header{Name: m.Question[0].Name, Rrtype: qType, Class: qClass, Ttl: 0}
+    header := dns.RR_Header{Name: m.Question[0].Name, Rrtype: qType, Class: qClass, Ttl: 5}
 
     resp, err := getResponse(client, req.Question[0])
 
