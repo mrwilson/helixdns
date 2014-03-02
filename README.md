@@ -1,24 +1,17 @@
 ## HelixDNS
 
-  A simple dns server to read records from etcd.
+  A simple dns server to read records from etcd. See this [blog post](http://probablyfine.co.uk/2014/03/02/serving-dns-records-from-etcd/) for more information.
 
 ## Build Instructions
 
     go get github.com/mrwilson/helixdns
+    make install
 
 ## Uses
 
-    go run ./cmd/hdns/hdns.go
-
-## Requirements
-
-  A running etcd server is required. HelixDNS defaults to http://localhost:4001/, the etcd default.
-
-  Records are stored as keys under /helix in etcd's key-value store. So the A record for foo.example.com. would be stored as the value in the node at
-
-    /helix/com/example/foo/A
+    hdns -port=<port-to-run-on> -etcd-address=<address-of-etcd-instance>
 
 ## TODO
 
- * Literally every other type of record that's not A.
- * Tests.
+ * Other types of record that aren't A or AAAA.
+ * Tests (unit + integration)
