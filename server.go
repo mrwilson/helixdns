@@ -2,7 +2,6 @@ package helixdns
 
 import (
   "github.com/miekg/dns"
-  "github.com/coreos/go-etcd/etcd"
   "log"
   "net"
   "strconv"
@@ -11,14 +10,13 @@ import (
 
 type HelixServer struct {
   Port   int
-  Client *etcd.Client
+  Client Client
 }
 
 func Server(port int, etcdurl string) *HelixServer {
-  client := etcd.NewClient([]string{ etcdurl  })
   return &HelixServer {
     Port: port,
-    Client: client,
+    Client: NewEtcdClient(etcdurl),
   }
 }
 
@@ -37,7 +35,7 @@ func (s HelixServer) Start() {
   server.ListenAndServe()
 }
 
-func getResponse(client *etcd.Client, q dns.Question) (*etcd.Response, error) {
+func getResponse(client Client, q dns.Question) (Response, error) {
   addr := dns.SplitDomainName(q.Name)
   path := []string{"helix"}
 
@@ -47,10 +45,10 @@ func getResponse(client *etcd.Client, q dns.Question) (*etcd.Response, error) {
 
   path = append(path, dns.TypeToString[q.Qtype])
 
-  return client.Get(strings.Join(path, "/"), false, false)
+  return client.Get(strings.Join(path, "/"))
 }
 
-func newHandler(client *etcd.Client) func(dns.ResponseWriter, *dns.Msg) {
+func newHandler(client Client) func(dns.ResponseWriter, *dns.Msg) {
   return func (w dns.ResponseWriter, req *dns.Msg) {
     m := new(dns.Msg)
     m.SetReply(req)
@@ -71,10 +69,10 @@ func newHandler(client *etcd.Client) func(dns.ResponseWriter, *dns.Msg) {
     switch qType {
       case dns.TypeA:
         m.Answer = make([]dns.RR, 1)
-        m.Answer[0] = &dns.A {Hdr: header, A: net.ParseIP(resp.Node.Value)}
+        m.Answer[0] = &dns.A {Hdr: header, A: net.ParseIP(resp.Value())}
       case dns.TypeAAAA:
         m.Answer = make([]dns.RR, 1)
-        m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp.Node.Value)}
+        m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp.Value())}
       default:
         log.Printf("Unrecognised record type: %d",qType)
     }
