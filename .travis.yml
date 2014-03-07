@@ -1,4 +1,4 @@
-script: go test -v
+script: make test
 language: go
 go:
   - 1.1
