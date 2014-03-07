@@ -5,8 +5,8 @@ test: deps
 	@go test -v
 
 deps:
-	@go install github.com/coreos/go-etcd/etcd
-	@go install github.com/miekg/dns
+	@go get github.com/coreos/go-etcd/etcd
+	@go get github.com/miekg/dns
 
 clean:
 	@rm -f $(GOPATH)/bin/hdns
