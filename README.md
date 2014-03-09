@@ -15,7 +15,7 @@
 
 ## SRV Records
 
-  SRV records have multiple pieces of information to serve, so the values stored in etcd are JSON values, as below.
+  SRV records have multiple pieces of information to serve, so the values stored in etcd under `/helix/com/example/_<protocol>/_<service>/SRV` should be in the form of a list of JSON objects, as below.
 
     [
       {"Priority":10,"Weight":60,"Port":5060,"Target":"bigbox.example.com."},
@@ -27,4 +27,4 @@
 
 ## TODO
 
- * Other types of record that aren't A or AAAA.
+ * Other types of record that aren't A, AAAA, or SRV.

@@ -78,7 +78,7 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
         m.Answer = make([]dns.RR, len(records))
         for i := range records {
           m.Answer[i] = &dns.SRV {
-            Hdr: header,
+            Hdr:      header,
             Priority: records[i].Priority,
             Weight:   records[i].Weight,
             Port:     records[i].Port,
