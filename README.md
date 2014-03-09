@@ -13,6 +13,18 @@
 
     hdns -port=<port-to-run-on> -etcd-address=<address-of-etcd-instance>
 
+## SRV Records
+
+  SRV records have multiple pieces of information to serve, so the values stored in etcd are JSON values, as below.
+
+    [
+      {"Priority":10,"Weight":60,"Port":5060,"Target":"bigbox.example.com."},
+      {"Priority":10,"Weight":20,"Port":5060,"Target":"smallbox1.example.com."},
+      {"Priority":10,"Weight":10,"Port":5060,"Target":"smallbox2.example.com."},
+      {"Priority":10,"Weight":10,"Port":5066,"Target":"smallbox2.example.com."},
+      {"Priority":20,"Weight":0, "Port":5060,"Target":"backupbox.example.com."}
+    ]
+
 ## TODO
 
  * Other types of record that aren't A or AAAA.
