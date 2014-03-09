@@ -1,6 +1,7 @@
 package helixdns
 
 import (
+  "encoding/json"
   "github.com/miekg/dns"
   "log"
   "net"
@@ -68,6 +69,23 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
     case dns.TypeAAAA:
       m.Answer = make([]dns.RR, 1)
       m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp.Value())}
+    case dns.TypeSRV:
+      var records []SrvRecord
+      err := json.Unmarshal([]byte(resp.Value()), &records)
+      if err != nil {
+        log.Printf("Could not unmarshal SRV record from etcd: %s", resp.Value())
+      } else {
+        m.Answer = make([]dns.RR, len(records))
+        for i := range records {
+          m.Answer[i] = &dns.SRV {
+            Hdr: header,
+            Priority: records[i].Priority,
+            Weight:   records[i].Weight,
+            Port:     records[i].Port,
+            Target:   records[i].Target,
+          }
+        }
+      }
     default:
       log.Printf("Unrecognised record type: %d",qType)
   }
