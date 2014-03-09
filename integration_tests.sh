@@ -34,3 +34,4 @@ SetEtcdRecord      "helix/com/example/A" "123.123.123.123"
 AssertRecordEquals "example.com."    "A" "123.123.123.123"
 
 kill -9 ${SERVER_PID}
+killall -9 etcd
