@@ -5,7 +5,7 @@ test: deps
 	@go test -v
 
 integration-test: deps
-	@sh ./scripts/download_and_run_etcd.sh
+	@sh ./scripts/download_etcd.sh
 	@sh ./integration_tests.sh
 
 deps:
