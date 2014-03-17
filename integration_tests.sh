@@ -40,6 +40,10 @@ echo TESTING A RECORD...
 SetEtcdRecord      "helix/com/example/A" "123.123.123.123"
 AssertRecordEquals "example.com."    "A" "123.123.123.123"
 
+echo TESTING PTR RECORD...
+SetEtcdRecord      "helix/arpa/in-addr/123/123/123/123/PTR"  "example.com."
+AssertRecordEquals "123.123.123.123.in-addr.arpa."    "PTR"  "example.com."
+
 kill -9 ${SERVER_PID}
 kill -9 ${ETCD_PID}
 
