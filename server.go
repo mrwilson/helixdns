@@ -89,6 +89,9 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
     case dns.TypePTR:
       m.Answer = make([]dns.RR, 1)
       m.Answer[0] = &dns.PTR {Hdr: header, Ptr: resp.Value()}
+    case dns.TypeCNAME:
+      m.Answer = make([]dns.RR, 1)
+      m.Answer[0] = &dns.CNAME {Hdr: header, Target: resp.Value()}
     default:
       log.Printf("Unrecognised record type: %d",qType)
   }

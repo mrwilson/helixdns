@@ -22,6 +22,10 @@ echo TESTING PTR RECORD...
 SetEtcdRecord      "helix/arpa/in-addr/123/123/123/123/PTR"  "example.com."
 AssertRecordEquals "123.123.123.123.in-addr.arpa."    "PTR"  "example.com."
 
+echo TESTING CNAME RECORD...
+SetEtcdRecord      "helix/com/example2/CNAME" "example.com."
+AssertRecordEquals "example2.com."    "CNAME" "example.com."
+
 kill -9 ${SERVER_PID}
 kill -9 ${ETCD_PID}
 
