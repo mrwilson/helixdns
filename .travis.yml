@@ -1,5 +1,5 @@
 before_install: sudo apt-get install dnsutils
-script: make test
+script: make test && make integration-test
 language: go
 go:
   - 1.2
