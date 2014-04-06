@@ -11,8 +11,7 @@ integration-test: install etcd bats
 	@$(ETCD_DIR)/etcd > /dev/null &
 	@go run ./cmd/hdns/hdns.go &
 	@sleep 5
-	@$(BATS_DIR)/bin/bats tests/
-	@killall -9 etcd hdns
+	@$(BATS_DIR)/bin/bats tests/ || killall -9 etcd hdns
 
 deps:
 	@go get github.com/coreos/go-etcd/etcd
