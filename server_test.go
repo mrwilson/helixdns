@@ -14,6 +14,8 @@ func (f FakeClient) Get(address string) (Response, error) {
   return nil, nil
 }
 
+func (f FakeClient) WatchForChanges() {}
+
 func TestServer_looksUpCorrectEntry(t *testing.T) {
 
   client   := &FakeClient{}

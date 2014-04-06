@@ -27,6 +27,8 @@ func (s HelixServer) Start() {
     WriteTimeout: 10,
   }
 
+  go s.Client.WatchForChanges()
+
   log.Print("Starting server...")
 
   server.ListenAndServe()
