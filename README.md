@@ -56,6 +56,22 @@
     ;; WHEN: Wed Apr 23 09:19:45 CEST 2014
     ;; MSG SIZE  rcvd: 137
 
+  With python using [pydns](http://sourceforge.net/projects/pydns/):
+    
+    # cat << EOF > fetch_dns.py
+    import DNS
+    DNS.ParseResolvConf()
+    srv_req = DNS.Request(qtype = 'srv', port=9000, server='localhost')
+    srv_result = srv_req.req('_syslog._tcp.local')
+    
+    for result in srv_result.answers:
+        if result['typename'] == 'SRV':
+            print result['data']
+    EOF
+    # python fetch_dns.py
+    (10, 60, 514, 'syslog.local')
+    (20, 10, 514, 'graylog.local')
+
 ## TODO
 
  * Other types of record that aren't A, AAAA, or SRV.
