@@ -7,8 +7,8 @@ load utils
 }
 
 @test "Should serve PTR records" {
-  set_etcd_record "arpa/in-addr/123/123/123/123/PTR" "example.com."
-  addr=$(dig_record "123.123.123.123.in-addr.arpa." "PTR")
+  set_etcd_record "arpa/in-addr/12/34/56/78/PTR" "example.com."
+  addr=$(dig_record "78.56.34.12.in-addr.arpa." "PTR")
   [ "$addr" = "example.com." ]
 }
 
