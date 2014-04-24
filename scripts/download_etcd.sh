@@ -1,9 +1,9 @@
 #!/bin/sh -x
 
 ETCD_DIR=/tmp/etcd
-ETCD_VER=etcd-v0.2.0-Linux-x86_64
-ETCD_URL=https://github.com/coreos/etcd/releases/download/v0.2.0/${ETCD_VER}.tar.gz
 ETCD_ZIP=/tmp/etcd.tar.gz
+
+ETCD_URL=https://github.com/coreos/etcd/releases/download/v0.3.0/etcd-v0.3.0-linux-amd64.tar.gz
 
 echo Cleaning up...
 rm -rf $ETCD_ZIP $ETCD_DIR
