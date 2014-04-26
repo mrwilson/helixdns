@@ -9,7 +9,7 @@ test: deps
 
 integration-test: install etcd bats
 	@$(ETCD_DIR)/etcd > /dev/null &
-	@go run ./cmd/hdns/hdns.go &
+	@go run ./cmd/hdns/hdns.go -forward=8.8.8.8:53 &
 	@sleep 5
 	@$(BATS_DIR)/bin/bats tests/ || killall -9 etcd hdns
 

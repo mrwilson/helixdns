@@ -17,3 +17,8 @@ load utils
   addr=$(dig_record "example2.com." "CNAME")
   [ "$addr" = "example.com." ]
 }
+
+@test "Should forward queries to -forward if not in etcd" {
+  ip=$(dig_record "probablyfine.co.uk." "A")
+  [ "$ip" = "162.243.71.204" ]
+}
