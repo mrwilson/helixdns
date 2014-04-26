@@ -11,7 +11,10 @@
 
 ## Uses
 
-    hdns -port=<port-to-run-on> -etcd-address=<address-of-etcd-instance>
+    hdns
+      -port=<port-to-run-on>
+      -etcd-address=<address-of-etcd-instance>
+      -forward=<address-of-forwarding-nameserver>
 
 ## SRV Records
 
@@ -27,4 +30,4 @@
 
 ## TODO
 
- * Other types of record that aren't A, AAAA, or SRV.
+ * Other types of record that aren't A, AAAA, CNAME, PTR, or SRV.
