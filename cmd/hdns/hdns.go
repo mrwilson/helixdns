@@ -1,7 +1,7 @@
 package main
 
 import (
-  "github.com/mrwilson/helixdns"
+  "github.com/brimstone/helixdns"
   "os"
   "os/signal"
   "syscall"
