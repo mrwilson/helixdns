@@ -44,7 +44,7 @@ func (s HelixServer) Start() {
   server.ListenAndServe()
 }
 
-func (s HelixServer) getResponse(q dns.Question) (Response, error) {
+func (s HelixServer) getResponse(q dns.Question) ([]Response, error) {
   addr := dns.SplitDomainName(q.Name)
   path := []string{"helix"}
 
@@ -81,16 +81,18 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
 
   switch qType {
     case dns.TypeA:
-      m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.A {Hdr: header, A: net.ParseIP(resp.Value())}
+      m.Answer = make([]dns.RR, len(resp))
+      for i, node := range resp {
+        m.Answer[i] = &dns.A {Hdr: header, A: net.ParseIP(node.Value())}
+      }
     case dns.TypeAAAA:
       m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp.Value())}
+      m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp[0].Value())}
     case dns.TypeSRV:
       var records []SrvRecord
-      err := json.Unmarshal([]byte(resp.Value()), &records)
+      err := json.Unmarshal([]byte(resp[0].Value()), &records)
       if err != nil {
-        log.Printf("Could not unmarshal SRV record from etcd: %s", resp.Value())
+        log.Printf("Could not unmarshal SRV record from etcd: %s", resp[0].Value())
       } else {
         m.Answer = make([]dns.RR, len(records))
         for i := range records {
@@ -105,10 +107,10 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
       }
     case dns.TypePTR:
       m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.PTR {Hdr: header, Ptr: resp.Value()}
+      m.Answer[0] = &dns.PTR {Hdr: header, Ptr: resp[0].Value()}
     case dns.TypeCNAME:
       m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.CNAME {Hdr: header, Target: resp.Value()}
+      m.Answer[0] = &dns.CNAME {Hdr: header, Target: resp[0].Value()}
     default:
       log.Printf("Unrecognised record type: %d",qType)
   }
