@@ -6,6 +6,7 @@ import (
   "log"
   "net"
   "path"
+  "math/rand"
 )
 
 type Response interface {
@@ -13,7 +14,7 @@ type Response interface {
 }
 
 type Client interface {
-  Get(path string) (Response, error)
+  Get(path string) ([]Response, error)
   WatchForChanges()
 }
 
@@ -63,12 +64,27 @@ func (c EtcdClient) WatchForChanges() {
   }
 }
 
-func (c EtcdClient) Get(path string) (Response, error) {
-  resp, err := c.Client.Get(path, false, false)
+func (c EtcdClient) Get(path string) ([]Response, error) {
+  resp, err := c.Client.Get(path, false, true)
 
   if err != nil {
     return nil, err
   }
 
-  return &EtcdResponse{ Response: resp }, nil
+  // Check to see if we have a directory instead
+  if resp.Node.Nodes != nil {
+    ret := make([]Response, len(resp.Node.Nodes))
+    for i, node := range resp.Node.Nodes {
+      // make a mildly complicated anonymous structure to hold our unwrapped object
+      ret[i] = &EtcdResponse{ Response: &etcd.Response{ Node: &etcd.Node{ Value: node.Value}}}
+    }
+    // shuffle the array
+    ret2 := make([]Response, len(resp.Node.Nodes))
+    perm := rand.Perm(len(ret2))
+    for i, j := range perm {
+      ret2[j] = ret[i]
+    }
+    return ret2, nil
+  }
+  return []Response{&EtcdResponse{ Response: resp }}, nil
 }
