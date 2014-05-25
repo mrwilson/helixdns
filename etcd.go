@@ -18,7 +18,8 @@ type Client interface {
 }
 
 type EtcdClient struct {
-  Client *etcd.Client
+  InstanceUrl string
+  Client      *etcd.Client
 }
 
 type EtcdResponse struct {
@@ -26,7 +27,10 @@ type EtcdResponse struct {
 }
 
 func NewEtcdClient(instanceUrl string) Client {
-  return &EtcdClient{ Client: etcd.NewClient([]string{instanceUrl}) }
+  return &EtcdClient{
+    InstanceUrl: instanceUrl,
+    Client: etcd.NewClient([]string{instanceUrl}),
+  }
 }
 
 func (r EtcdResponse) Value() string {
@@ -53,6 +57,8 @@ func (c EtcdClient) WatchForChanges() {
     c.Client.Watch("/helix", 0, true, channel, nil)
   }()
 
+  defer c.catchEtcdPanic()
+
   for {
     select {
       case resp := <-channel:
@@ -60,6 +66,12 @@ func (c EtcdClient) WatchForChanges() {
           log.Printf("ERROR: %s (%s => %s)", msg, resp.Node.Key, resp.Node.Value)
         }
     }
+  }
+}
+
+func (c EtcdClient) catchEtcdPanic() {
+  if r := recover(); r != nil {
+    log.Fatalf("Panic in setting up watch on /helix. Is etcd running at %s ?", c.InstanceUrl)
   }
 }
 
