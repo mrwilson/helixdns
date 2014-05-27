@@ -64,7 +64,6 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
   qType  := req.Question[0].Qtype
   qClass := req.Question[0].Qclass
 
-  header := dns.RR_Header{Name: m.Question[0].Name, Rrtype: qType, Class: qClass, Ttl: 5}
   resp, err := s.getResponse(req.Question[0])
 
   if err != nil {
@@ -72,12 +71,29 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
       log.Printf("Could not get record for %s, forwarding to %s", req.Question[0].Name, s.DNSClient.GetAddress())
       in, _ := s.DNSClient.Lookup(req)
       w.WriteMsg(in)
+      return
     } else {
-      log.Printf("Could not get record for %s", req.Question[0].Name)
-      w.WriteMsg(m)
+      // We need to check to see if we were asked for an A, but we don't have an A, but a CNAME instead
+      if qType == dns.TypeA {
+        // Current theory is to check to see since we don't have an A, reprocess the request with a CNAME instead
+        req.Question[0].Qtype = dns.TypeCNAME
+        qType = dns.TypeCNAME
+        resp, err = s.getResponse(req.Question[0])
+        // If we still don't, bail
+        if err != nil {
+          log.Printf("Could not get CNAME for %s either (%s)", req.Question[0].Name, err)
+          w.WriteMsg(m)
+          return
+        }
+      } else {
+        log.Printf("Could not get record for %s (%s)", req.Question[0].Name, err)
+        w.WriteMsg(m)
+        return
+      }
     }
-    return
   }
+
+  header := dns.RR_Header{Name: m.Question[0].Name, Rrtype: qType, Class: qClass, Ttl: 5}
 
   switch qType {
     case dns.TypeA:
