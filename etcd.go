@@ -42,7 +42,11 @@ func validate(node *etcd.Node) (bool, string) {
     case "CNAME", "PTR":
       return dns.IsFqdn(node.Value), "Domain name not fully-qualified"
     default:
-      return false, "Record type not supported"
+      parentType := path.Base(path.Dir(node.Key))
+      if (parentType == "A") {
+        return net.ParseIP(node.Value) != nil, "Invalid ip"
+      }
+	  return false, "Record type not supported"
   }
 }
 
