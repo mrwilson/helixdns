@@ -1,8 +1,8 @@
 FROM debian:jessie
 MAINTAINER Alex Wilson a.wilson@alumni.warwick.ac.uk
 
-RUN apt-get update && apt-get -y upgrade
-RUN apt-get install -qy golang-go git make
+RUN apt-get update && \
+  apt-get install -qy golang-go git make
 
 RUN mkdir -p /usr/local/go/bin
 ENV GOPATH /usr/local/go
