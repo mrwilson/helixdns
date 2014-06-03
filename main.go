@@ -1,7 +1,6 @@
 package main
 
 import (
-  "github.com/mrwilson/helixdns"
   "os"
   "os/signal"
   "syscall"
@@ -24,12 +23,12 @@ func init() {
 func main() {
   flag.Parse()
 
-  var server *helixdns.HelixServer
+  var server HelixServer
 
   if config.ForwardingNameServer != "" {
-    server = helixdns.ForwardingServer(config.Port, config.EtcdAddress, config.ForwardingNameServer)
+    server = ForwardingServer(config.Port, config.EtcdAddress, config.ForwardingNameServer)
   } else {
-    server = helixdns.Server(config.Port, config.EtcdAddress)
+    server = Server(config.Port, config.EtcdAddress)
   }
 
   go func() {
