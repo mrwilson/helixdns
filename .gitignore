@@ -1,3 +1,4 @@
+*.etcd
 .DS_Store
 helixdns
 *.exe

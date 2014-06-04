@@ -7,7 +7,8 @@
 ## Build Instructions
 
     go get github.com/mrwilson/helixdns
-    make install
+
+    go build -o hdns github.com/mrwilson/helixdns
 
 ## Uses
 
