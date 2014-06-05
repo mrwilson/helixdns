@@ -1,4 +1,4 @@
-package helixdns
+package main
 
 import (
   "encoding/json"
@@ -15,17 +15,17 @@ type HelixServer struct {
   DNSClient DNSClient
 }
 
-func ForwardingServer(port int, etcdurl, dnsServerUrl string) *HelixServer {
+func ForwardingServer(port int, etcdurl, dnsServerUrl string) HelixServer {
   client := NewEtcdClient(etcdurl)
   dnsClient := ForwardingDNSClient{ Address: dnsServerUrl }
 
-  return &HelixServer{ Port: port, Client: client, DNSClient: dnsClient }
+  return HelixServer{ Port: port, Client: client, DNSClient: dnsClient }
 }
 
-func Server(port int, etcdurl string) *HelixServer {
+func Server(port int, etcdurl string) HelixServer {
   client := NewEtcdClient(etcdurl)
 
-  return &HelixServer{ Port: port, Client: client }
+  return HelixServer{ Port: port, Client: client }
 }
 
 func (s HelixServer) Start() {
