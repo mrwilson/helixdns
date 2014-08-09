@@ -11,6 +11,7 @@ go-test: deps
 
 integration-test: build etcd bats
 	@$(ETCD_DIR)/etcd > /dev/null &
+	@sleep 5
 	@./helixdns -forward=8.8.8.8:53 &
 	@sleep 5
 	@$(BATS_DIR)/bin/bats tests/ && (killall -9 etcd helixdns || true)
