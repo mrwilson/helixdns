@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ETCD_URL=http://localhost:4001/v2/keys/helix
+ETCD_URL=http://localhost:4111/v2/keys/helix
 
 set_etcd_record (){
   RECORD=$1

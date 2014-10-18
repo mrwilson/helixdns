@@ -1,6 +1,6 @@
 #!/bin/sh -x
 
-ETCD_VER=0.4.2
+ETCD_VER=0.4.6
 
 ETCD_DIR=/tmp/etcd
 ETCD_ZIP=/tmp/etcd.tar.gz
