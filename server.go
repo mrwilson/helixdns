@@ -7,6 +7,7 @@ import (
   "net"
   "strconv"
   "strings"
+  "time"
 )
 
 type HelixServer struct {
@@ -33,8 +34,8 @@ func (s HelixServer) Start() {
     Addr:         ":"+strconv.Itoa(s.Port),
     Net:          "udp",
     Handler:      dns.HandlerFunc(s.Handler),
-    ReadTimeout:  10,
-    WriteTimeout: 10,
+    ReadTimeout:  10 * time.Second,
+    WriteTimeout: 10 * time.Second,
   }
 
   go s.Client.WatchForChanges()
