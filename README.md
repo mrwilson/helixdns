@@ -19,7 +19,7 @@
 
 Records are stored in etcd under `/helix/`. To add an A record from example.com to 123.123.123.123
 
-  etcdctl set /helix/com/example/A "123.123.123.123"
+    etcdctl set /helix/com/example/A "123.123.123.123"
 
 Standard supported records are A, AAAA, CNAME, and PTR.
 
