@@ -1,11 +1,11 @@
 #!/bin/sh
 
-ETCD_URL=http://localhost:4111/v2/keys/helix
+ETCD_CTL=/tmp/etcd/etcdctl
 
 set_etcd_record (){
   RECORD=$1
   VALUE=$2
-  curl --silent -o /dev/null -XPUT ${ETCD_URL}/${RECORD} -d value="${VALUE}"
+  ${ETCD_CTL} --peers 127.0.0.1:4111 set /helix/${RECORD} ${VALUE}
 }
 
 dig_record (){

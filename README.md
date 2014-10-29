@@ -7,15 +7,21 @@
 ## Build Instructions
 
     go get github.com/mrwilson/helixdns
-
     go build -o hdns github.com/mrwilson/helixdns
 
-## Uses
+## Flags
 
-    hdns
-      -port=<port-to-run-on>
-      -etcd-address=<address-of-etcd-instance>
-      -forward=<address-of-forwarding-nameserver>
+ * **port** - port to run on (defaults to 9000)
+ * **etcd-address** - location of etcd instance to connect to (defaults to http://localhost:4001/)
+ * **forward** - optional address of forwarding nameserver
+
+## Adding records to HelixDNS
+
+Records are stored in etcd under `/helix/`. To add an A record from example.com to 123.123.123.123
+
+  etcdctl set /helix/com/example/A "123.123.123.123"
+
+Standard supported records are A, AAAA, CNAME, and PTR.
 
 ## SRV Records
 
@@ -28,7 +34,3 @@
       {"Priority":10,"Weight":10,"Port":5066,"Target":"smallbox2.example.com."},
       {"Priority":20,"Weight":0, "Port":5060,"Target":"backupbox.example.com."}
     ]
-
-## TODO
-
- * Other types of record that aren't A, AAAA, CNAME, PTR, or SRV.
