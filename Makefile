@@ -28,5 +28,6 @@ bats:
 	@[ -d $(BATS_DIR) ] || git clone https://github.com/sstephenson/bats.git $(BATS_DIR)
 
 clean:
+	@rm -rf `uname -n`.etcd
 	@rm -f helixdns
 	@rm -rf $(BATS_DIR) $(ETCD_DIR)

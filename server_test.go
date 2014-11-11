@@ -2,6 +2,7 @@ package main
 
 import (
   "github.com/miekg/dns"
+  "github.com/coreos/go-etcd/etcd"
   "testing"
 )
 
@@ -13,6 +14,8 @@ func (f *FakeClient) Get(address string) (Response, error) {
   f.Result = address
   return EtcdResponse{}, nil
 }
+
+func (f FakeClient) GetAll(address string) []*etcd.Node { return nil }
 
 func (f FakeClient) WatchForChanges() {}
 

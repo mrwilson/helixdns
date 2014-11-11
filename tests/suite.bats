@@ -22,3 +22,13 @@ load utils
   ip=$(dig_record "probablyfine.co.uk." "A")
   [ "$ip" = "162.243.71.204" ]
 }
+
+@test "Should support zone transfers" {
+  set_etcd_record "com/soa-example/foo/A" "1.2.3.4"
+  set_etcd_record "com/soa-example/A" "123.123.123.123"
+  set_etcd_record "com/soa-example/SOA" '{"Ns":"foo.","Mbox":"bar.","Serial":1,"Refresh":1,"Retry":1,"Expire":1,"Minttl":1}'
+
+  dig_record_contains "soa-example.com." "AXFR" "foo. bar. 1 1 1 1 1"
+  dig_record_contains "soa-example.com." "AXFR" "1.2.3.4"
+  dig_record_contains "soa-example.com." "AXFR" "123.123.123.123"
+}

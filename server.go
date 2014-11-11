@@ -7,6 +7,7 @@ import (
   "strconv"
   "strings"
   "time"
+  "github.com/coreos/go-etcd/etcd"
 )
 
 type HelixServer struct {
@@ -37,24 +38,127 @@ func (s HelixServer) Start() {
     WriteTimeout: 10 * time.Second,
   }
 
+  zoneTransferServer := &dns.Server{
+    Addr:         ":"+strconv.Itoa(s.Port),
+    Net:          "tcp",
+    Handler:      dns.HandlerFunc(s.zoneTransferHandler),
+    ReadTimeout:  10 * time.Second,
+    WriteTimeout: 10 * time.Second,
+  }
+
   go s.Client.WatchForChanges()
 
-  log.Print("Starting server...")
+  log.Print("Starting servers...")
 
-  server.ListenAndServe()
+  go server.ListenAndServe()
+  go zoneTransferServer.ListenAndServe()
 }
 
-func (s HelixServer) getResponse(q dns.Question) (Response, error) {
-  addr := dns.SplitDomainName(q.Name)
+func domainToEtcdKey(domain, record string) string {
+  addr := dns.SplitDomainName(domain)
   path := []string{"helix"}
 
   for i := len(addr) - 1; i >= 0; i-- {
     path = append(path, addr[i])
   }
 
-  path = append(path, dns.TypeToString[q.Qtype])
+  if record != "" {
+    path = append(path, record)
+  }
 
-  return s.Client.Get(strings.Join(path, "/"))
+  return strings.Join(path, "/")
+}
+
+func (s HelixServer) getResponse(q dns.Question) (Response, error) {
+  value := dns.TypeToString[q.Qtype]
+  return s.Client.Get(domainToEtcdKey(q.Name, value))
+}
+
+func addNode(records chan dns.RR, node *etcd.Node) {
+  if node.Dir {
+    for i := range node.Nodes {
+      addNode(records, node.Nodes[i])
+    }
+  } else {
+    value := etcdNodeToDnsRecord(node)
+    for i := range value {
+      records <- value[i]
+    }
+  }
+}
+
+func (s HelixServer) recordsForDomain(domain string) chan dns.RR {
+
+  nodes := s.Client.GetAll(domainToEtcdKey(domain, ""))
+
+  leafNodes := make(chan dns.RR, 0)
+
+  go func() {
+    for i := range nodes {
+      addNode(leafNodes, nodes[i])
+    }
+    close(leafNodes)
+  }()
+
+  return leafNodes
+}
+
+func (s HelixServer) zoneTransferHandler(w dns.ResponseWriter, req *dns.Msg) {
+
+  value := req.Question[0].Qtype
+
+  switch value {
+  case dns.TypeAXFR, dns.TypeIXFR:
+    domain := req.Question[0].Name
+
+    resp, err := s.getResponse(dns.Question{Qtype:dns.TypeSOA,Name:domain })
+
+    if err != nil {
+      log.Printf("Could not find SOA for %s", domain)
+      return
+    }
+
+    c := make(chan *dns.Envelope)
+    transfer := new(dns.Transfer)
+
+    defer close(c)
+
+    err = transfer.Out(w, req, c)
+
+    if err != nil {
+      log.Printf("Could not begin zone transfer.")
+      return
+    }
+
+    var soa *dns.SOA
+
+    err = json.Unmarshal([]byte(resp.Value()), &soa)
+
+    if err != nil {
+      log.Printf("Failed to parse SOA record: %s", resp.Value())
+      return
+    }
+
+    header := dns.RR_Header{Name: domain, Rrtype: dns.TypeSOA, Class: dns.ClassINET, Ttl: 5}
+    soa.Hdr = header
+
+    records := []dns.RR{soa}
+
+    channel := s.recordsForDomain(domain)
+    for record := range channel {
+      records = append(records, record)
+    }
+
+    records = append(records, soa)
+
+    c <- &dns.Envelope{RR: records}
+
+    w.Hijack()
+    return
+    default:
+      log.Printf("Was not a zone transfer request.")
+    }
+
 }
 
 func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
