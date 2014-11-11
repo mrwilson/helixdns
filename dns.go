@@ -44,6 +44,15 @@ func etcdNodeToDnsRecord(node *etcd.Node) []dns.RR {
     case "A":
       header := dns.RR_Header{Name: etcdKeyToDomainName(node.Key), Rrtype: dns.TypeA, Class: dns.ClassINET, Ttl: 5}
       return []dns.RR { &dns.A {Hdr: header, A: net.ParseIP(node.Value)} }
+    case "AAAA":
+      header := dns.RR_Header{Name: etcdKeyToDomainName(node.Key), Rrtype: dns.TypeAAAA, Class: dns.ClassINET, Ttl: 5}
+      return []dns.RR { &dns.AAAA {Hdr: header, AAAA: net.ParseIP(node.Value)} }
+    case "PTR":
+      header := dns.RR_Header{Name: etcdKeyToDomainName(node.Key), Rrtype: dns.TypePTR, Class: dns.ClassINET, Ttl: 5}
+      return []dns.RR { &dns.PTR {Hdr: header, Ptr: node.Value}}
+    case "CNAME":
+      header := dns.RR_Header{Name: etcdKeyToDomainName(node.Key), Rrtype: dns.TypeCNAME, Class: dns.ClassINET, Ttl: 5}
+      return []dns.RR { &dns.CNAME {Hdr: header, Target: node.Value}}
     default:
       return nil
   }

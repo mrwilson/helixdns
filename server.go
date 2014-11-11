@@ -4,7 +4,6 @@ import (
   "encoding/json"
   "github.com/miekg/dns"
   "log"
-  "net"
   "strconv"
   "strings"
   "time"
@@ -81,11 +80,8 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
   }
 
   switch qType {
-    case dns.TypeA:
+    case dns.TypeA, dns.TypeAAAA, dns.TypeCNAME, dns.TypePTR:
       m.Answer = etcdNodeToDnsRecord(resp.Node())
-    case dns.TypeAAAA:
-      m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp.Value())}
     case dns.TypeSRV:
       var records []SrvRecord
       err := json.Unmarshal([]byte(resp.Value()), &records)
@@ -103,12 +99,6 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
           }
         }
       }
-    case dns.TypePTR:
-      m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.PTR {Hdr: header, Ptr: resp.Value()}
-    case dns.TypeCNAME:
-      m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.CNAME {Hdr: header, Target: resp.Value()}
     default:
       log.Printf("Unrecognised record type: %d",qType)
   }
