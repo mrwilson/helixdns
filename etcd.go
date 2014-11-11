@@ -10,6 +10,7 @@ import (
 
 type Response interface {
   Value() string
+  Node() *etcd.Node
 }
 
 type Client interface {
@@ -31,6 +32,10 @@ func NewEtcdClient(instanceUrl string) Client {
     InstanceUrl: instanceUrl,
     Client: etcd.NewClient([]string{instanceUrl}),
   }
+}
+
+func (r EtcdResponse) Node() *etcd.Node {
+  return r.Response.Node;
 }
 
 func (r EtcdResponse) Value() string {

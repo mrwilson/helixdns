@@ -82,8 +82,7 @@ func (s HelixServer) Handler(w dns.ResponseWriter, req *dns.Msg) {
 
   switch qType {
     case dns.TypeA:
-      m.Answer = make([]dns.RR, 1)
-      m.Answer[0] = &dns.A {Hdr: header, A: net.ParseIP(resp.Value())}
+      m.Answer = etcdNodeToDnsRecord(resp.Node())
     case dns.TypeAAAA:
       m.Answer = make([]dns.RR, 1)
       m.Answer[0] = &dns.AAAA {Hdr: header, AAAA: net.ParseIP(resp.Value())}
