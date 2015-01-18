@@ -13,7 +13,7 @@
 
  * **port** - port to run on (defaults to 9000)
  * **etcd-address** - location of etcd instance to connect to (defaults to http://localhost:4001/)
- * **forward** - optional address of forwarding nameserver
+ * **forward** - optional address of forwarding nameserver (including port - e.g. 8.8.8.8:53)
 
 ## Adding records to HelixDNS
 
