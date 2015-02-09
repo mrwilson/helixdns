@@ -1,6 +1,4 @@
-## HelixDNS
-
- [![Build Status](https://travis-ci.org/mrwilson/helixdns.png?branch=master)](https://travis-ci.org/mrwilson/helixdns)
+# HelixDNS [![Build Status](https://travis-ci.org/mrwilson/helixdns.png?branch=master)](https://travis-ci.org/mrwilson/helixdns) [![Gobuild Download](http://gobuild.io/badge/github.com/mrwilson/helixdns/download.png)](http://gobuild.io/github.com/mrwilson/helixdns) [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/mrwilson/helixdns)
 
   A simple dns server to read records from etcd. See this [blog post](http://probablyfine.co.uk/2014/03/02/serving-dns-records-from-etcd/) for more information.
 
